@@ -30,13 +30,15 @@ def setup():
   from http.cookies import CookieError, SimpleCookie
   from cgi import FieldStorage
   from datetime import datetime
-  from .db import sql
+  from .db import sqlite as sql
   from decimal import Decimal
   from json import JSONEncoder
   from os import environ, path
   from pickle import dumps, loads, UnpicklingError
   from .pypp import preprocess
   from sys import exit
+  from pwd import getpwuid
+  from .pretty import delta as prettydelta
 
   class DecimalEncoder(JSONEncoder):
     def default(self, obj):
@@ -156,6 +158,8 @@ def setup():
     'query' : conn.query,
     'queryRow' : conn.queryRow,
     'queryScalar' : conn.queryScalar,
+    'username' : (lambda uid : getpwuid(int(uid))[0]),
+    'prettydelta' : prettydelta,
   }
   values['site_path'] = path.dirname(environ['SCRIPT_NAME'])
   values['file_path'] = environ['REDIRECT_URL'][len(values['site_path']):]
@@ -165,4 +169,5 @@ def setup():
   if not values['file_name']:
     values['file_name'] = 'index.html'
     values['file_path'] = path.join(values['file_dir'],values['file_name'])
+  values.update(**preprocess('conf/def.conf'))
 

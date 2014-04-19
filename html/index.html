@@ -1,7 +1,55 @@
 #inside "html5.html"
 <head>
-  <title>Contest Stats</title>
+  <title>Contest</title>
+  <link rel="stylesheet" type="text/css" href="css/contest.css" />
 </head>
 <body>
-  Coming Soon...
+<div>
+  <h2>Instructions</h2>
+  <ul>
+    <li>Log onto %(SERVER_NAME)s</li>
+    <li>Checkout a program using <tt>/proj/contest/bin/checkout [PROBLEM]</tt></li>
+    <li>When you have a solution to the problem run <tt>/proj/contest/bin/runContest [PROBLEM] [CMD TO RUN SOLVER]</tt></li>
+  </ul>
+  <p>
+    The problems are available below in the user stats section.
+    The input is provided on stdin, and the output is expected on stdout.
+  </p>
+</div>
+
+<h2>User Stats</h2>
+<table>
+  <tbody>
+    <tr>
+      <th>names \ problems</th>
+#call tests=query "tests"
+#for tests
+      <th>%(t_name)s</th>
+#end
+    </tr>
+#call users=query "users"
+#for users
+      <tr>
+#call name=username user_id
+      <td>%(name)s</td>
+#for tests
+#local args "( '%(user_id)s', '%(t_name)s' )"
+#call passes=queryScalar "passes" args
+      <td>
+#if passes
+#call best=queryScalar "best" args
+#call fbest=prettydelta best
+#call tries=queryScalar "tries" args
+#call time=queryScalar "times" args
+#call ftime=prettydelta time
+        ran in %(fbest)s <br/>
+        %(tries)s tries<br/>
+        submitted in %(ftime)s <br/>
+#end
+      </td>
+#end
+    </tr>
+#end
+  </tbody>
+</table>
 </body>
